@@ -1,21 +1,29 @@
-resource "azurerm_resource_group" "terraform-rg" {
-  name     = "sandeep-terraform-rg"
-  location = "eastus"
+# resource "azurerm_resource_group" "terraform-rg" {
+#   name     = "sandeep-terraform-rg"
+#   location = "eastus"
+# }
+
+data "azurerm_resource_group" "terraform-rg" {
+  name = "Terraform-demo-rg"
 }
 
-resource "azurerm_service_plan" "demo-appservice-plan" {
-  name                = "sandeep-demo-appservice-plan"
-  location            = azurerm_resource_group.terraform-rg.location
-  resource_group_name = azurerm_resource_group.terraform-rg.name
-  os_type             = "Linux"
-  sku_name         = "B2"
+# resource "azurerm_service_plan" "demo-appservice-plan" {
+#   name                = "sandeep-demo-appservice-plan"
+#   location            = azurerm_resource_group.terraform-rg.location
+#   resource_group_name = azurerm_resource_group.terraform-rg.name
+#   os_type             = "Linux"
+#   sku_name         = "B2"
+# }
+data "azurerm_service_plan" "demo-appservice-plan" {
+  name                = "DemoAppService-plan"
+  resource_group_name = data.azurerm_resource_group.terraform-rg.name
 }
 
 resource "azurerm_linux_web_app" "demo-appservice" {
   name                = "sandeep-demo-appservice"
-  location            = azurerm_resource_group.terraform-rg.location
-  resource_group_name = azurerm_resource_group.terraform-rg.name
-  service_plan_id = azurerm_service_plan.demo-appservice-plan.id
+  location            = data.azurerm_resource_group.terraform-rg.location
+  resource_group_name = data.azurerm_resource_group.terraform-rg.name
+  service_plan_id = data.azurerm_service_plan.demo-appservice-plan.id
 
   site_config {
     application_stack {
@@ -32,8 +40,4 @@ resource "azurerm_linux_web_app" "demo-appservice" {
     type  = "SQLServer"
     value = "Server=some-server.mydomain.com;Integrated Security=SSPI"
   }
-}
-
-output "app_service_default_hostname" {
-  value = azurerm_linux_web_app.demo-appservice.default_hostname
 }
